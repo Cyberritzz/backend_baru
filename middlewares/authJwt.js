@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import UserCol from "../model/userCol.js";
 
 const authJwt = {
   verifyToken: (req, res, next) => {
@@ -23,11 +24,10 @@ const authJwt = {
     });
   },
   isAdmin: (req, res, next) => {
-    // Cek apakah req.isAdmin true, yang berarti pengguna memiliki peran "admin"
+    
     if (req.isAdmin) {
-      return next(); // Lanjutkan ke middleware atau handler berikutnya
+      return next(); 
     } else {
-      // Jika tidak memiliki peran "admin", kirim respons 403 Forbidden
       return res.status(403).send({
         message: "Require Admin Role!",
       });
@@ -35,11 +35,9 @@ const authJwt = {
   },
 
   isUser: (req, res, next) => {
-    // Cek apakah req.isAdmin true, yang berarti pengguna memiliki peran "admin"
     if (req.userId) {
-      return next(); // Lanjutkan ke middleware atau handler berikutnya
+      return next(); 
     } else {
-      // Jika tidak memiliki peran "admin", kirim respons 403 Forbidden
       return res.status(403).send({
         message: "Require User Role!",
       });
@@ -49,15 +47,23 @@ const authJwt = {
   isNotMembership: async (req, res, next) => {
     try {
       const idProduct = parseInt(req.params.id);
-      const isMembership = await prisma.user.findUnique({
-        where: { id: req.userId },
-        select: { is_membership: true },
+      const is_membership = await UserCol.findOne({
+        where: { id: req.userId }
       });
+      const typeProduct = await UserCol.findOne({
+        where: { id: idProduct }
+      })
+      console.log(is_membership);
+      console.log(typeProduct);
+      // const isMembership = await prisma.user.findUnique({
+      //   where: { id: req.userId },
+      //   select: { is_membership: true },
+      // });
 
-      const typeProduct = await prisma.product.findFirst({
-        where: { id: idProduct },
-        select: { type_product: true },
-      });
+      // const typeProduct = await prisma.product.findFirst({
+      //   where: { id: idProduct },
+      //   select: { type_product: true },
+      // });
 
       if (!req.userId) {
         return res.status(401).json({
