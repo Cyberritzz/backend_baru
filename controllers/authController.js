@@ -1,14 +1,14 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Email from "../utility/sendEmail.js";
-import idGenerator from "../utility/idGenerator.js";
+import AdminCol from "../model/adminCol.js";
 
 const authController = {
   register: async (req, res) => {
     try {
       const { fullname, email, contact, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
-      const id = idGenerator();
+      
       await prisma.user.create({
         data: {
           id,
@@ -28,15 +28,10 @@ const authController = {
     try {
       const { username, email, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
-      const id = idGenerator();
-      await prisma.admin.create({
-        data: {
-          id,
-          username,
-          email,
-          password: hashedPassword,
-        },
-      });
+
+      const data = new AdminCol({ username, email, password: hashedPassword });
+      await data.save();
+
       res.status(200).json({ message: "Account Registered" });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -45,6 +40,7 @@ const authController = {
 
   login: async (req, res) => {
     const { email, password } = req.body;
+    
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -73,13 +69,8 @@ const authController = {
     const { email, password } = req.body;
 
     try {
-      const admin = await prisma.admin.findUnique({
-        where: { email },
-      });
 
-      if (!admin) {
-        return res.status(404).json({ message: "Admin not found" });
-      }
+      const admin = await AdminCol.findOne({ email });
 
       const passwordMatch = await bcrypt.compare(password, admin.password);
 

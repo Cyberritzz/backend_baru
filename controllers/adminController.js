@@ -1,5 +1,4 @@
 import fs from "fs";
-import idGenerator from "../utility/idGenerator.js";
 
 const adminController = {
   adminDashboard: async (req, res) => {
