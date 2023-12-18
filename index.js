@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -6,6 +7,15 @@ dotenv.config();
 import adminRoute from "./routers/adminRoute.js";
 import authRoute from "./routers/authRoute.js";
 import userRoute from "./routers/userRoute.js";
+
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const db = mongoose.connection;
+db.on("error", (err) => console.log(err));
+db.once("open", () => console.log("database kenek"));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
