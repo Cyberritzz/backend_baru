@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Email from "../utility/sendEmail.js";
-import idGenerator from "../utility/idGenerator.js";
 
 const userController = {
   getProduct: async (req, res) => {
