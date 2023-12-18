@@ -8,10 +8,7 @@ import adminRoute from "./routers/adminRoute.js";
 import authRoute from "./routers/authRoute.js";
 import userRoute from "./routers/userRoute.js";
 
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.DATABASE_URL);
 
 const db = mongoose.connection;
 db.on("error", (err) => console.log(err));
