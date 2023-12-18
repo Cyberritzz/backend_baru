@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const schemaProduct = mongoose.Schema({
-  name_product: String,
+  name_product: {
+    type: String,
+    required: true,
+  },
   thumbnail: String,
   source_file: String,
   description: String,
@@ -15,7 +18,10 @@ const schemaProduct = mongoose.Schema({
     enum: ["templates", "web_design_figma", "mobile_design_figma"],
     default: "web_design_figma",
   },
-  create_at: Date.now(),
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const ProductCol = mongoose.model("product", schemaProduct);
