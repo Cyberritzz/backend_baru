@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Email from "../utility/sendEmail.js";
 import AdminCol from "../model/adminCol.js";
+import UserCol from "../model/userCol.js";
 
 const authController = {
   register: async (req, res) => {
@@ -9,15 +10,9 @@ const authController = {
       const { fullname, email, contact, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
       
-      await prisma.user.create({
-        data: {
-          id,
-          fullname,
-          email,
-          contact,
-          password: hashedPassword,
-        },
-      });
+      const data = new UserCol({ fullname, email, contact, password: hashedPassword });
+      await data.save();
+
       res.json({ message: "Account Registered" });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -41,13 +36,8 @@ const authController = {
   login: async (req, res) => {
     const { email, password } = req.body;
     
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await UserCol.findOne({ email });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -71,7 +61,6 @@ const authController = {
     try {
 
       const admin = await AdminCol.findOne({ email });
-
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
       if (!passwordMatch) {
