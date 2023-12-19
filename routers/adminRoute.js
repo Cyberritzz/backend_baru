@@ -23,7 +23,8 @@ adminRoute.get(
 );
 
 adminRoute.post(
-  "/admin/dashboard/upload-product", // [authJwt.verifyToken, authJwt.isAdmin],
+  "/admin/dashboard/upload-product",
+  [authJwt.verifyToken, authJwt.isAdmin],
   adminController.uploadProduk
 );
 
@@ -34,9 +35,35 @@ adminRoute.put(
 );
 
 adminRoute.put(
-  "/admin/dashboard/edit-membership/:id",
+  "/admin/dashboard/update-foto/:id",
   [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.updateFoto
+);
+
+adminRoute.put(
+  "/admin/dashboard/update-file/:id",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.updateRar
+);
+
+adminRoute.put(
+  "/admin/dashboard/edit-membership/:id",
+  // [authJwt.verifyToken, authJwt.isAdmin],
   adminController.putMembership
+);
+
+// delete product by id
+adminRoute.delete(
+  "/admin/dashboard/delete-product/:id",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.deleteProductById
+);
+
+// delete user by id
+adminRoute.delete(
+  "/admin/dashboard/delete-user/:id",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.deleteUserById
 );
 
 export default adminRoute;

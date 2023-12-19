@@ -1,23 +1,23 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Email from "../utility/sendEmail.js";
-import idGenerator from "../utility/idGenerator.js";
+import AdminCol from "../model/adminCol.js";
+import UserCol from "../model/userCol.js";
 
 const authController = {
   register: async (req, res) => {
     try {
       const { fullname, email, contact, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
-      const id = idGenerator();
-      await prisma.user.create({
-        data: {
-          id,
-          fullname,
-          email,
-          contact,
-          password: hashedPassword,
-        },
+
+      const data = new UserCol({
+        fullname,
+        email,
+        contact,
+        password: hashedPassword,
       });
+      await data.save();
+
       res.json({ message: "Account Registered" });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -28,15 +28,10 @@ const authController = {
     try {
       const { username, email, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
-      const id = idGenerator();
-      await prisma.admin.create({
-        data: {
-          id,
-          username,
-          email,
-          password: hashedPassword,
-        },
-      });
+
+      const data = new AdminCol({ username, email, password: hashedPassword });
+      await data.save();
+
       res.status(200).json({ message: "Account Registered" });
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -45,13 +40,9 @@ const authController = {
 
   login: async (req, res) => {
     const { email, password } = req.body;
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const user = await UserCol.findOne({ email });
+
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -73,14 +64,7 @@ const authController = {
     const { email, password } = req.body;
 
     try {
-      const admin = await prisma.admin.findUnique({
-        where: { email },
-      });
-
-      if (!admin) {
-        return res.status(404).json({ message: "Admin not found" });
-      }
-
+      const admin = await AdminCol.findOne({ email });
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
       if (!passwordMatch) {
@@ -131,15 +115,7 @@ const authController = {
     try {
       const { email } = req.body;
 
-      const user = await prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-          joined_at: true,
-        },
-      });
+      const user = await UserCol.findOne({ email });
 
       if (!user) {
         return res.status(404).json({ message: "email not found" });
@@ -190,22 +166,7 @@ const authController = {
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
 
-        await prisma.user.update({
-          where: {
-            id: decode.id,
-            joined_at: decode.joined_at,
-          },
-          data: {
-            password: hash,
-          },
-          select: {
-            id: true,
-            fullname: true,
-            email: true,
-            joined_at: true,
-            is_membership: true,
-          },
-        });
+        await UserCol.updateOne({ _id: decode.id }, { password: hash });
 
         res.status(200).json({ message: "success" });
       });

@@ -1,5 +1,6 @@
 import fs from "fs";
-import idGenerator from "../utility/idGenerator.js";
+import ProductCol from "../model/productCol.js";
+import UserCol from "../model/userCol.js";
 
 const adminController = {
   adminDashboard: async (req, res) => {
@@ -11,7 +12,7 @@ const adminController = {
   },
   getProduk: async (req, res) => {
     try {
-      const result = await prisma.product.findMany();
+      const result = await ProductCol.find();
 
       if (!result) {
         res.status(404).send({ message: "data not found" });
@@ -26,24 +27,24 @@ const adminController = {
   updateProduk: async (req, res) => {
     try {
       let id = req.params.id;
-      const data = {
-        name_product: req.body.name_product,
-        description: req.body.description,
-        category: req.body.category,
-        type_product: req.body.type_product,
-      };
+      // const { name_product, description, category, type_product, thumbnail, source_file } = req.body;
+      const { name_product, description, category, type_product } = req.body;
 
-      const result = await prisma.product.update({
-        where: {
-          id: id,
-        },
-        data: data,
-      });
+      const result = await ProductCol.updateOne(
+        { _id: id },
+        {
+          $set: {
+            name_product,
+            description,
+            category,
+            type_product
+          },
+        }
+      );
 
-      if (!result) {
-        res.status(500).send({ message: "Update Failed" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
-
       res.status(200).send({ message: "Update Success" });
     } catch (error) {
       res.status(500).send({ message: error.message });
@@ -51,50 +52,21 @@ const adminController = {
   },
   updateFoto: async (req, res) => {
     try {
-      let id = req.params.id;
+      const id = req.params.id;
+      const thumbnail = req.body.thumbnail
 
-      // find dan hapus foto lama product
-      const product = await prisma.product.findFirst({
-        where: { id: id },
-      });
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-      let path = product.thumbnail;
-      path = path.substring(path.lastIndexOf("/") + 1);
-      path = `./public/uploads/thumbnail/${path}`;
-      console.log(path);
-
-      // hapus foto lama
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
-          return;
+      const result = await ProductCol.updateOne(
+        {_id : id},
+        {
+          $set:{
+            thumbnail
+          }
         }
-      });
+      );
 
-      const thumbnail = req.files["thumbnail"][0]
-        ? req.files["thumbnail"][0].filename
-        : null;
-      const thumbnailUrl = thumbnail
-        ? `${req.protocol}://${req.get("host")}/uploads/${thumbnail}`
-        : null;
-
-      console.log(thumbnail);
-      console.log(thumbnailUrl);
-      const result = await prisma.product.update({
-        where: {
-          id: id,
-        },
-        data: {
-          thumbnail: thumbnailUrl,
-        },
-      });
-
-      if (!result) {
-        res.status(500).send({ message: "Update Failed" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
-
       res.status(200).send({ message: "Update Success" });
     } catch (error) {
       res.status(500).send({ message: error.message });
@@ -102,48 +74,20 @@ const adminController = {
   },
   updateRar: async (req, res) => {
     try {
-      let id = req.params.id;
+      const id = req.params.id;
+      const source_file = req.body.source_file;
 
-      // find dan hapus foto lama product
-      const product = await prisma.product.findFirst({
-        where: { id: id },
-      });
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-      let path = product.source_file;
-      path = path.substring(path.lastIndexOf("/") + 1);
-      path = `./public/uploads/rar/${path}`;
-      console.log(path);
-
-      // hapus foto lama
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
-          return;
+      const result = await ProductCol.updateOne(
+        {_id : id},
+        {
+          $set:{
+            source_file
+          }
         }
-      });
+      );
 
-      const sourceFile = req.files["source_file"][0]
-        ? req.files["source_file"][0].filename
-        : null;
-      const sourceFileUrl = sourceFile
-        ? `${req.protocol}://${req.get("host")}/uploads/${sourceFile}`
-        : null;
-
-      console.log(sourceFile);
-      console.log(sourceFileUrl);
-      const result = await prisma.product.update({
-        where: {
-          id: id,
-        },
-        data: {
-          source_file: sourceFileUrl,
-        },
-      });
-
-      if (!result) {
-        res.status(500).send({ message: "Update Failed" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
 
       res.status(200).send({ message: "Update Success" });
@@ -154,37 +98,24 @@ const adminController = {
 
   uploadProduk: async (req, res) => {
     try {
-      // Menggunakan properti .filename untuk mendapatkan nama file yang di-upload
-      const sourceFile = req.files["source_file"][0]
-        ? req.files["source_file"][0].filename
-        : null;
-      const thumbnail = req.files["thumbnail"][0]
-        ? req.files["thumbnail"][0].filename
-        : null;
+      const { 
+        name_product, 
+        description, 
+        category, 
+        type_product, 
+        thumbnail, 
+        source_file } = req.body;
 
-      const sourceFileUrl = sourceFile
-        ? `${req.protocol}://${req.get("host")}/uploads/${sourceFile}`
-        : null;
-      const thumbnailUrl = thumbnail
-        ? `${req.protocol}://${req.get("host")}/uploads/${thumbnail}`
-        : null;
+      const data = new ProductCol({
+        name_product: name_product,
+        description: description,
+        category: category,
+        type_product: type_product,
+        thumbnail: thumbnail,
+        source_file: source_file,
+      });
 
-      const id = idGenerator();
-      const data = {
-        id,
-        name_product: req.body.name_product,
-        thumbnail: thumbnailUrl,
-        source_file: sourceFileUrl,
-        description: req.body.description,
-        category: req.body.category,
-        type_product: req.body.type_product,
-      };
-
-      const result = await prisma.product.create({ data });
-
-      if (!result) {
-        res.status(500).send({ message: "Upload Failed" });
-      }
+      await data.save();
 
       res.status(200).send({ message: "Upload Success" });
     } catch (error) {
@@ -194,7 +125,7 @@ const adminController = {
 
   getUsers: async (req, res) => {
     try {
-      const result = await prisma.user.findMany();
+      const result = await UserCol.find();
       if (!result) {
         res.status(404).send({ message: "data not found" });
       }
@@ -209,13 +140,17 @@ const adminController = {
       const id = req.params.id;
       let is_membership = req.body.is_membership;
 
-      const result = await prisma.user.update({
-        where: { id: id },
-        data: { is_membership: is_membership },
-      });
+      const result = await UserCol.findOneAndUpdate(
+        {_id : id},
+        {
+          $set : {
+            is_membership : is_membership
+          }
+        }
+      );
 
-      if (!result) {
-        res.status(404).send({ message: "data not found" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
 
       res.status(200).json({ message: "update success" });
@@ -223,6 +158,38 @@ const adminController = {
       res.status(500).send({ message: error.message });
     }
   },
+
+  deleteProductById : async (req, res) => {
+    try {
+      const filter = req.params.id;
+      const result = await ProductCol.deleteOne({ _id: filter });
+
+      if (result.deletedCount === 0) {
+        return res.status(401).send({ message: "Delete Failed" });
+      }
+
+      res.status(200).json({message : 'delete success'});
+    } catch (error) {
+      res.status(500).json({message: error.message});
+    }
+  },
+
+  deleteUserById : async (req, res) => {
+    try {
+      const filter = req.params.id;
+      
+      // delete user
+      const result = await UserCol.deleteOne({ _id: filter });
+
+      if(result.deletedCount === 0) {
+        return res.status(401).send({ message: "Delete Failed" });
+      }
+
+      res.json({message : 'Delete success'});
+    } catch (error) {
+      res.status(500).json({message: error.message});
+    }
+  }
 };
 
 export default adminController;
