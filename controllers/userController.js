@@ -6,20 +6,31 @@ import otpGenerator from "../utility/otpGenerator.js";
 import ProductCol from "../model/productCol.js";
 
 const userController = {
-  getProduct: async (req, res) => {
+  getProduct : async (req, res) => {
     try {
-      const result = await ProductCol.find();
-
+      
+      const result = await ProductCol.find({}, {
+        created_at : 0,
+        source_file : 0
+      });
+  
+      if (!result || result.length === 0) {
+        return res.status(404).json({ message: "Data not found" });
+      }
+  
       res.status(200).json(result);
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
+  
 
   getProductById: async (req, res) => {
     try {
+
       const id = req.params.id;
-      const result = await ProductCol.findOne({ id });
+      const result = await ProductCol.findOne({ id }, {created_at : 0,
+        source_file : 0});
 
       res.json(result);
     } catch (error) {
