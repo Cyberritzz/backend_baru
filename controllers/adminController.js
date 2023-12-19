@@ -140,8 +140,8 @@ const adminController = {
       const id = req.params.id;
       let is_membership = req.body.is_membership;
 
-      const result = await prisma.user.update({
-        where: { id: id },
+      const result = await UserCol.update({
+        where: { _id: id },
         data: { is_membership: is_membership },
       });
 

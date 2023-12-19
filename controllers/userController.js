@@ -3,37 +3,37 @@ import jwt from "jsonwebtoken";
 import Email from "../utility/sendEmail.js";
 import UserCol from "../model/userCol.js";
 import otpGenerator from "../utility/otpGenerator.js";
+import ProductCol from "../model/productCol.js";
 
 const userController = {
-  getProduct: async (req, res) => {
+  getProduct : async (req, res) => {
     try {
-      const result = await prisma.product.findMany({
-        select: {
-          id: true,
-          name_product: true,
-          thumbnail: true,
-          description: true,
-          type_product: true,
-          category: true,
-        },
+      const result = await ProductCol.find({}, {
+        _id: true,
+        name_product: true,
+        thumbnail: true,
+        description: true,
+        type_product: true,
+        category: true,
       });
-
-      if (!result) {
-        res.status(404).send({ message: "data not found" });
+  
+      if (!result || result.length === 0) {
+        return res.status(404).json({ message: "Data not found" });
       }
-
+  
       res.status(200).json(result);
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   },
+  
 
   getProductById: async (req, res) => {
     try {
       const productId = req.params.id;
 
-      const product = await prisma.product.findFirst({
-        where: { id: productId },
+      const product = await ProductCol.findOne({
+        where: { _id: productId },
       });
 
       if (!product) {
