@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Email from "../utility/sendEmail.js";
+import UserCol from "../model/userCol.js";
+import otpGenerator from "../utility/otpGenerator.js";
 
 const userController = {
   getProduct: async (req, res) => {
@@ -165,18 +167,7 @@ const userController = {
 
   otpEmail: async (req, res) => {
     try {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: req.userId,
-        },
-        select: {
-          id: true,
-          fullname: true,
-          email: true,
-          otp: true,
-          email_verified: true,
-        },
-      });
+      const user = await UserCol.findOne({ _id: req.userId });
 
       if (user.email_verified) {
         return res.status(400).json({
@@ -193,23 +184,7 @@ const userController = {
         allowInsecureKeySizes: true,
       });
 
-      const saveOtp = await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          otp: otpExpire,
-        },
-        select: {
-          id: true,
-          fullname: true,
-          email: true,
-          email_verified: true,
-          contact_verified: true,
-          otp: true,
-          is_membership: true,
-        },
-      });
+      await UserCol.updateOne({ _id: req.userId }, { otp: otpExpire });
 
       const email = new Email({
         from: "UI stellar",
@@ -228,7 +203,6 @@ const userController = {
         message: "check your email",
         statusMessage: info.response,
         messageId: info.messageId,
-        user: saveOtp,
       });
     } catch (err) {
       return res.status(500).json({
@@ -239,19 +213,7 @@ const userController = {
 
   emailVerify: async (req, res) => {
     try {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: req.userId,
-        },
-        select: {
-          id: true,
-          fullname: true,
-          email: true,
-          otp: true,
-          email_verified: true,
-        },
-      });
-
+      const user = await UserCol.findOne({ _id: req.userId });
       if (user.email_verified) {
         return res.status(400).json({
           message: "email has been verified",
@@ -271,25 +233,10 @@ const userController = {
           });
         }
 
-        const userEmailVerify = await prisma.user.update({
-          where: {
-            id: req.userId,
-          },
-          data: {
-            email_verified: true,
-          },
-          select: {
-            id: true,
-            fullname: true,
-            email: true,
-            otp: true,
-            email_verified: true,
-          },
-        });
+        await UserCol.updateOne({ _id: req.userId }, { email_verified: true });
 
         res.status(200).json({
           message: "email successfully verified",
-          user: userEmailVerify,
         });
       });
     } catch (err) {
