@@ -50,13 +50,17 @@ const schemaUser = mongoose.Schema({
   },
   is_membership: {
     type: String,
-    enum: [
+    required : true,
+    enum: {
+      values:[
       "free",
       "level1_monthly",
       "level1_lifetime",
       "level2_monthly",
       "level2_lifetime",
     ],
+    message : "invalid membership value"
+    },
     default: "free",
   },
   fullname: String,

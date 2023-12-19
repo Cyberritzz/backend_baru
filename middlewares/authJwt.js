@@ -71,7 +71,7 @@ const authJwt = {
         });
       }
       if (
-        isMembership.is_membership === false &&
+        is_membership.is_membership === false &&
         typeProduct.type_product === "premium"
       ) {
         return res.status(403).json({

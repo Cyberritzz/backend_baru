@@ -8,13 +8,10 @@ import ProductCol from "../model/productCol.js";
 const userController = {
   getProduct : async (req, res) => {
     try {
+      
       const result = await ProductCol.find({}, {
-        _id: true,
-        name_product: true,
-        thumbnail: true,
-        description: true,
-        type_product: true,
-        category: true,
+        created_at : 0,
+        source_file : 0
       });
   
       if (!result || result.length === 0) {
@@ -30,17 +27,12 @@ const userController = {
 
   getProductById: async (req, res) => {
     try {
-      const productId = req.params.id;
 
-      const product = await ProductCol.findOne({
-        where: { _id: productId },
-      });
+      const id = req.params.id;
+      const result = await ProductCol.findOne({ id }, {created_at : 0,
+        source_file : 0});
 
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-
-      res.json(product);
+      res.json(result);
     } catch (error) {
       res.status(500).send({ message: error.message });
     }
@@ -50,24 +42,20 @@ const userController = {
     try {
       const productId = req.params.id;
       const userId = req.params.id_user;
-      const historyID = idGenerator();
-      await prisma.history.create({
-        data: { id: historyID, id_product: productId, id_user: userId },
-      });
 
-      const limit = await prisma.user.findFirst({
-        where: { id: userId },
-        select: { limit: true, is_membership: true },
-      });
+      const limit = await UserCol.findOne({ _id: userId });
+      const product = await ProductCol.findOne({ _id: productId });
 
-      const product = await prisma.product.findFirst({
-        where: { id: productId },
-      });
-
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-
+      await UserCol.findOneAndUpdate(
+        { _id: userId },
+        {
+          $push: {
+            history: {
+              productId,
+            },
+          },
+        }
+      );
       if (
         (limit.is_membership === "free" && product.type_product !== "free") ||
         (["level1_monthly", "level1_lifetime"].includes(limit.is_membership) &&
@@ -77,10 +65,14 @@ const userController = {
       }
 
       if (limit.is_membership === "free") {
-        await prisma.user.update({
-          where: { id: userId },
-          data: { limit: limit.limit - 1 },
-        });
+        await UserCol.findOneAndUpdate(
+          { _id: userId },
+          {
+            $set: {
+              limit: limit.limit - 1,
+            },
+          }
+        );
       }
 
       res.status(200).json(product.source_file);
@@ -91,19 +83,21 @@ const userController = {
   updateUserMail: async (req, res) => {
     try {
       const id = req.params.id;
-      const data = {
-        fullname: req.body.fullName,
-        email: req.body.email,
-        contact: req.body.contact,
-      };
+      const {fullname,email,contact} = req.body;
 
-      const result = await prisma.user.update({
-        where: { id: id },
-        data: data,
-      });
-
-      if (!result) {
-        res.status(404).send({ message: "Update Failed" });
+      const result = await UserCol.updateOne(
+        { _id : id },
+        {
+          $set :{
+            fullname,
+            email,
+            contact
+          }
+        }
+      );
+      console.log(result);
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
 
       res.status(200).send({ message: "Update Success", result });
@@ -117,9 +111,7 @@ const userController = {
       const id = req.params.id;
       const { oldPassword, newPassword } = req.body;
 
-      const user = await prisma.user.findFirst({
-        where: { id: id },
-      });
+      const user = await UserCol.findOne({_id : id });
 
       const passwordMatch = await bcrypt.compare(oldPassword, user.password);
 
@@ -128,17 +120,17 @@ const userController = {
       }
 
       const newHashedPassword = bcrypt.hashSync(newPassword, 10);
-      const updateData = await prisma.user.update({
-        where: { id: id },
-        data: {
-          password: newHashedPassword,
-        },
-      });
 
-      if (!updateData) {
-        res.status(500).send({ message: "Update Failed" });
-      }
-      res.status(200).send({ message: "Update Success", updateData });
+      const updateData =  await UserCol.updateOne(
+        { _id : id },
+        {
+          $set : {
+            password : newHashedPassword
+          }
+        }
+      );
+      
+      res.status(200).send({ message: "Update Success" });
     } catch (error) {
       res.status(500).send({ message: error.message });
     }
@@ -147,17 +139,14 @@ const userController = {
   getHistory: async (req, res) => {
     try {
       const id = req.params.id;
-      const result = await prisma.history.findMany({
-        where: { id_user: id },
-        include: {
-          product: true,
-          user: true,
-        },
-      });
 
-      if (!result) {
-        res.status(404).send({ message: "data not found" });
-      }
+      const result = await UserCol.findOne(
+        { _id:id},
+        {
+          history : 1,
+          _id : 0
+        }
+      );
 
       res.status(200).json(result);
     } catch (error) {
