@@ -140,13 +140,17 @@ const adminController = {
       const id = req.params.id;
       let is_membership = req.body.is_membership;
 
-      const result = await prisma.user.update({
-        where: { id: id },
-        data: { is_membership: is_membership },
-      });
+      const result = await UserCol.findOneAndUpdate(
+        {_id : id},
+        {
+          $set : {
+            is_membership : is_membership
+          }
+        }
+      );
 
-      if (!result) {
-        res.status(404).send({ message: "data not found" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
 
       res.status(200).json({ message: "update success" });
@@ -180,8 +184,6 @@ const adminController = {
       if(result.deletedCount === 0) {
         return res.status(401).send({ message: "Delete Failed" });
       }
-      // delete history
-      // await prisma.history.deleteMany({ where : { id_user : filter }});
 
       res.json({message : 'Delete success'});
     } catch (error) {

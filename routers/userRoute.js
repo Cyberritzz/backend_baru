@@ -19,7 +19,7 @@ userRoute.get(
 
 userRoute.get(
   "/user/download/:id/:id_user",
-  [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
+  // [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
   checkLimit,
   userController.downloadFile
 );
@@ -38,7 +38,7 @@ userRoute.post(
 
 userRoute.get(
   "/user/history/:id",
-  [authJwt.verifyToken, authJwt.isUser],
+  // [authJwt.verifyToken, authJwt.isUser],
   userController.getHistory
 );
 
@@ -52,6 +52,18 @@ userRoute.post(
   "/user/email-verify",
   [authJwt.verifyToken, authJwt.isUser],
   userController.emailVerify
+);
+
+userRoute.put(
+  "/user/update-data/:id",
+  [authJwt.verifyToken, authJwt.isUser],
+  userController.updateUserMail
+);
+
+userRoute.put(
+  "/user/update-password/:id",
+  [authJwt.verifyToken, authJwt.isUser],
+  userController.updatePassword
 );
 
 export default userRoute;

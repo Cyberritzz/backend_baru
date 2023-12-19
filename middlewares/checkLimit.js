@@ -1,8 +1,9 @@
+import UserCol from "../model/userCol.js";
+
 const checkLimit = async (req, res, next) => {
-  const limit = await prisma.user.findFirst({
-    where: { id: req.params.id_user },
-    select: { limit: true, is_membership: true, fullname: true },
-  });
+  const id_user = req.params.id_user
+  const limit = await UserCol.findOne({ _id:id_user });
+
   if (limit.is_membership !== "free") {
     return next();
   } else if (limit.limit > 0) {

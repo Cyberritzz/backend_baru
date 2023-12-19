@@ -12,7 +12,7 @@ adminRoute.get(
 
 adminRoute.get(
   "/admin/dashboard/product",
-  // [authJwt.verifyToken, authJwt.isAdmin],
+  [authJwt.verifyToken, authJwt.isAdmin],
   adminController.getProduk
 );
 
@@ -36,19 +36,19 @@ adminRoute.put(
 
 adminRoute.put(
   "/admin/dashboard/update-foto/:id",
-  // [authJwt.verifyToken, authJwt.isAdmin],
+  [authJwt.verifyToken, authJwt.isAdmin],
   adminController.updateFoto
 );
 
 adminRoute.put(
   "/admin/dashboard/update-file/:id",
-  // [authJwt.verifyToken, authJwt.isAdmin],
+  [authJwt.verifyToken, authJwt.isAdmin],
   adminController.updateRar
 );
 
 adminRoute.put(
   "/admin/dashboard/edit-membership/:id",
-  [authJwt.verifyToken, authJwt.isAdmin],
+  // [authJwt.verifyToken, authJwt.isAdmin],
   adminController.putMembership
 );
 
