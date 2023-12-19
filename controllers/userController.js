@@ -11,7 +11,8 @@ const userController = {
       
       const result = await ProductCol.find({}, {
         created_at : 0,
-        source_file : 0
+        source_file : 0,
+        __v :0
       });
   
       if (!result || result.length === 0) {
@@ -29,8 +30,11 @@ const userController = {
     try {
 
       const id = req.params.id;
-      const result = await ProductCol.findOne({ id }, {created_at : 0,
-        source_file : 0});
+      const result = await ProductCol.findOne({ _id : id }, {
+        created_at : 0,
+        source_file : 0,
+        __v:0
+      });
 
       res.json(result);
     } catch (error) {

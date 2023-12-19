@@ -13,13 +13,13 @@ userRoute.get(
 
 userRoute.get(
   "/user/products/:id",
-  [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
+  // [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
   userController.getProductById
 );
 
 userRoute.get(
   "/user/download/:id/:id_user",
-  // [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
+  [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
   checkLimit,
   userController.downloadFile
 );
