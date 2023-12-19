@@ -48,7 +48,7 @@ adminRoute.put(
 
 adminRoute.put(
   "/admin/dashboard/edit-membership/:id",
-  // [authJwt.verifyToken, authJwt.isAdmin],
+  [authJwt.verifyToken, authJwt.isAdmin],
   adminController.putMembership
 );
 

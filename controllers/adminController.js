@@ -149,6 +149,7 @@ const adminController = {
         }
       );
 
+      console.log(result);
       if (result.modifiedCount === 0) {
         return res.status(401).send({ message: "Update Failed" });
       }
