@@ -9,8 +9,13 @@ const authController = {
     try {
       const { fullname, email, contact, password } = req.body;
       const hashedPassword = bcrypt.hashSync(password, 10);
-      
-      const data = new UserCol({ fullname, email, contact, password: hashedPassword });
+
+      const data = new UserCol({
+        fullname,
+        email,
+        contact,
+        password: hashedPassword,
+      });
       await data.save();
 
       res.json({ message: "Account Registered" });
@@ -35,7 +40,7 @@ const authController = {
 
   login: async (req, res) => {
     const { email, password } = req.body;
-    
+
     const user = await UserCol.findOne({ email });
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -59,7 +64,6 @@ const authController = {
     const { email, password } = req.body;
 
     try {
-
       const admin = await AdminCol.findOne({ email });
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
@@ -111,15 +115,7 @@ const authController = {
     try {
       const { email } = req.body;
 
-      const user = await prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-          joined_at: true,
-        },
-      });
+      const user = await UserCol.findOne({ email });
 
       if (!user) {
         return res.status(404).json({ message: "email not found" });
@@ -170,22 +166,7 @@ const authController = {
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
 
-        await prisma.user.update({
-          where: {
-            id: decode.id,
-            joined_at: decode.joined_at,
-          },
-          data: {
-            password: hash,
-          },
-          select: {
-            id: true,
-            fullname: true,
-            email: true,
-            joined_at: true,
-            is_membership: true,
-          },
-        });
+        await UserCol.updateOne({ _id: decode.id }, { password: hash });
 
         res.status(200).json({ message: "success" });
       });
