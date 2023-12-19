@@ -52,50 +52,21 @@ const adminController = {
   },
   updateFoto: async (req, res) => {
     try {
-      let id = req.params.id;
+      const id = req.params.id;
+      const thumbnail = req.body.thumbnail
 
-      // find dan hapus foto lama product
-      const product = await prisma.product.findFirst({
-        where: { id: id },
-      });
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-      let path = product.thumbnail;
-      path = path.substring(path.lastIndexOf("/") + 1);
-      path = `./public/uploads/thumbnail/${path}`;
-      console.log(path);
-
-      // hapus foto lama
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
-          return;
+      const result = await ProductCol.updateOne(
+        {_id : id},
+        {
+          $set:{
+            thumbnail
+          }
         }
-      });
+      );
 
-      const thumbnail = req.files["thumbnail"][0]
-        ? req.files["thumbnail"][0].filename
-        : null;
-      const thumbnailUrl = thumbnail
-        ? `${req.protocol}://${req.get("host")}/uploads/${thumbnail}`
-        : null;
-
-      console.log(thumbnail);
-      console.log(thumbnailUrl);
-      const result = await prisma.product.update({
-        where: {
-          id: id,
-        },
-        data: {
-          thumbnail: thumbnailUrl,
-        },
-      });
-
-      if (!result) {
-        res.status(500).send({ message: "Update Failed" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
-
       res.status(200).send({ message: "Update Success" });
     } catch (error) {
       res.status(500).send({ message: error.message });
@@ -103,48 +74,20 @@ const adminController = {
   },
   updateRar: async (req, res) => {
     try {
-      let id = req.params.id;
+      const id = req.params.id;
+      const source_file = req.body.source_file;
 
-      // find dan hapus foto lama product
-      const product = await prisma.product.findFirst({
-        where: { id: id },
-      });
-      if (!product) {
-        res.status(404).send({ message: "data not found" });
-      }
-      let path = product.source_file;
-      path = path.substring(path.lastIndexOf("/") + 1);
-      path = `./public/uploads/rar/${path}`;
-      console.log(path);
-
-      // hapus foto lama
-      fs.unlink(path, (err) => {
-        if (err) {
-          console.log(err);
-          return;
+      const result = await ProductCol.updateOne(
+        {_id : id},
+        {
+          $set:{
+            source_file
+          }
         }
-      });
+      );
 
-      const sourceFile = req.files["source_file"][0]
-        ? req.files["source_file"][0].filename
-        : null;
-      const sourceFileUrl = sourceFile
-        ? `${req.protocol}://${req.get("host")}/uploads/${sourceFile}`
-        : null;
-
-      console.log(sourceFile);
-      console.log(sourceFileUrl);
-      const result = await prisma.product.update({
-        where: {
-          id: id,
-        },
-        data: {
-          source_file: sourceFileUrl,
-        },
-      });
-
-      if (!result) {
-        res.status(500).send({ message: "Update Failed" });
+      if (result.modifiedCount === 0) {
+        return res.status(401).send({ message: "Update Failed" });
       }
 
       res.status(200).send({ message: "Update Success" });
