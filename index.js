@@ -24,14 +24,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // app.use(cors());
-//app.use(cors({ credentials: true, origin: 'https://localhost:3001' }));
+app.use(cors({ credentials: true, origin: 'https://localhost:3001' }));
 // app.use(cors({ credentials: true, origin: 'https://admin-uistellar.vercel.app' }));
 
-app.use(cors({
-  origin: ['https://localhost:3001', 'https://admin-uistellar.vercel.app'],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-}));
+// app.use(cors({
+//   origin: ['https://localhost:3001', 'https://admin-uistellar.vercel.app'],
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//   credentials: true,
+// }));
 
 app.use(session({
   name: process.env.COOKIE,
