@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import moment from "moment-timezone";
 
 const schemaUser = mongoose.Schema({
   email: {
@@ -12,7 +13,7 @@ const schemaUser = mongoose.Schema({
   },
   joined_at: {
     type: Date,
-    default: Date.now,
+    default: moment.tz(Date.now(), "Asia/Bangkok"),
   },
   is_membership: {
     type: String,
@@ -51,7 +52,7 @@ const schemaUser = mongoose.Schema({
       id_product: String,
       date: {
         type: Date,
-        default: Date.now,
+        default: moment.tz(Date.now(), "Asia/Bangkok"),
       },
     },
   ],
