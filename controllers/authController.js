@@ -42,6 +42,7 @@ const authController = {
     const { email, password } = req.body;
 
     const user = await UserCol.findOne({ email });
+    console.log(user._id);
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
@@ -57,7 +58,7 @@ const authController = {
 
     req.session.token = token;
 
-    res.json({ message: "Login successful" });
+    res.json({ message: "Login successful", id : user._id });
   },
 
   adminLogin: async (req, res) => {
