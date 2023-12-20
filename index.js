@@ -23,12 +23,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Gunakan middleware CORS di sini
-app.use(cors({
-  origin: '*',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-})); 
+app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*'); // Atur domain Anda sendiri jika memungkinkan
