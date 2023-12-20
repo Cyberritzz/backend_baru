@@ -50,6 +50,9 @@ const schemaUser = mongoose.Schema({
   history: [
     {
       id_product: String,
+      name_product : String,
+      thumbnail : String,
+      category : String,
       date: {
         type: Date,
         default: moment.tz(Date.now(), "Asia/Bangkok"),
