@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(cors({ credentials: true, origin: 'https://admin-uistellar.vercel.app' }));
 
 app.use(cors({
-  origin: ['http://localhost:3001','http://localhost:5173', 'https://admin-uistellar.vercel.app'],
+  origin: ['http://localhost:3001','http://localhost:3001','http://localhost:5173', 'https://admin-uistellar.vercel.app','https://uistellar.com'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 }));
