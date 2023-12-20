@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import session from "express-session";
-import path from "path";
+
 
 dotenv.config();
 
@@ -41,7 +41,7 @@ app.use(session({
     sameSite: 'strict' // Atur ke 'strict' untuk keamanan sesi yang lebih tinggi
   }
 }));
-app.use(express.static(path.join(__dirname, 'views')));
+
 
 app.use(adminRoute);
 app.use(authRoute);
