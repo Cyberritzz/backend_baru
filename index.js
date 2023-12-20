@@ -24,7 +24,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // app.use(cors());
-app.use(cors({ credentials: true, origin: '*' }));
+app.use(cors({ credentials: true, origin: 'https://localhost:3001' }));
+app.use(cors({ credentials: true, origin: 'https://admin-uistellar.vercel.app' }));
+
 
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', '*'); // Atur domain Anda sendiri jika memungkinkan
