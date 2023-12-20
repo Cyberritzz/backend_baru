@@ -38,7 +38,7 @@ userRoute.post(
 
 userRoute.get(
   "/user/history/:id",
-  // [authJwt.verifyToken, authJwt.isUser],
+  [authJwt.verifyToken, authJwt.isUser],
   userController.getHistory
 );
 

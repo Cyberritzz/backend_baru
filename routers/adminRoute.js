@@ -18,13 +18,13 @@ adminRoute.get(
 
 adminRoute.get(
   "/admin/dashboard/get-users",
-  [authJwt.verifyToken, authJwt.isAdmin],
+  // [authJwt.verifyToken, authJwt.isAdmin],
   adminController.getUsers
 );
 
 adminRoute.post(
   "/admin/dashboard/upload-product",
-  [authJwt.verifyToken, authJwt.isAdmin],
+  // [authJwt.verifyToken, authJwt.isAdmin],
   adminController.uploadProduk
 );
 
