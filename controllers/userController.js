@@ -70,7 +70,10 @@ const userController = {
         {
           $push: {
             history: {
-              productId,
+              id_product : productId,
+              name_product : product.name_product,
+              thumbnail : product.thumbnail,
+              category : product.category
             },
           },
         }
