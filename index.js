@@ -26,11 +26,11 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(cors());
 app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*'); // Atur domain Anda sendiri jika memungkinkan
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*'); // Atur domain Anda sendiri jika memungkinkan
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
 
 app.use(session({
   name: process.env.COOKIE,
