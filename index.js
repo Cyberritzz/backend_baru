@@ -28,10 +28,11 @@ app.use(cors({
   origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
-}));
+})); 
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept");
+  res.header('Access-Control-Allow-Origin', '*'); // Atur domain Anda sendiri jika memungkinkan
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
 
