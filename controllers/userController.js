@@ -42,6 +42,21 @@ const userController = {
     }
   },
 
+  getUserDetail: async (req, res) => {
+    try {
+      const id = req.params.id;
+      const result = await UserCol.findOne({ _id : id }, {
+        __v:0,
+        password:0,
+        _id:0,
+        limit:0
+      });
+      res.json(result);
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  },
+
   downloadFile: async (req, res) => {
     try {
       const productId = req.params.id;
