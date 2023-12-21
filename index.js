@@ -42,7 +42,8 @@ app.use(session({
     secure: false,
     httpOnly: true,
     maxAge: 3600000,
-    sameSite: 'strict'
+    sameSite: 'strict',
+    domain: 'admin-uistellar.vercel.app',
   }
 }));
 
