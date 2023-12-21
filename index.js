@@ -43,7 +43,7 @@ app.use(session({
     httpOnly: true,
     maxAge: 3600000,
     sameSite: 'strict',
-    domain: 'admin-uistellar.vercel.app',
+    domain: 'https://localhost:3000',
   }
 }));
 
