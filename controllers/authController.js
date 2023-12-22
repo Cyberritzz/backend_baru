@@ -99,25 +99,13 @@ const authController = {
   },
 
   logout: async (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Unable to logout" });
-      }
-
-      res.clearCookie(process.env.COOKIE, { path: "/", domain: "localhost" });
-      res.json({ message: "Logout successful" });
-    });
+    res.clearCookie("token");
+    res.json({ message: "Logout successful" });
   },
 
   adminLogout: async (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Unable to logout" });
-      }
-
-      res.clearCookie(process.env.COOKIE, { path: "/", domain: "localhost" });
-      res.json({ message: "Logout successful" });
-    });
+    res.clearCookie("token");
+    res.json({ message: "Logout successful" });
   },
 
   forget: async (req, res) => {
