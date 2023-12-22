@@ -128,7 +128,7 @@ const authController = {
         }
       );
 
-      const url = `${process.env.SECRET_CLIENT_HOST}/forgot-password/${token}`;
+      const url = `${process.env.SECRET_CLIENT_HOST}/reset-password/${token}`;
       const sendEmail = new Email({
         from: '"Fred Foo 👻"', // sender address
         to: email, // list of receivers
