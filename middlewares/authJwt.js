@@ -3,7 +3,7 @@ import UserCol from "../model/userCol.js";
 
 const authJwt = {
   verifyToken: (req, res, next) => {
-    let token = req.session.token;
+    let token = req.cookies?.token;
 
     if (!token) {
       return res.status(403).send({
@@ -24,9 +24,8 @@ const authJwt = {
     });
   },
   isAdmin: (req, res, next) => {
-    
     if (req.isAdmin) {
-      return next(); 
+      return next();
     } else {
       return res.status(403).send({
         message: "Require Admin Role!",
@@ -36,7 +35,7 @@ const authJwt = {
 
   isUser: (req, res, next) => {
     if (req.userId) {
-      return next(); 
+      return next();
     } else {
       return res.status(403).send({
         message: "Require User Role!",
@@ -48,11 +47,11 @@ const authJwt = {
     try {
       const idProduct = parseInt(req.params.id);
       const is_membership = await UserCol.findOne({
-        where: { id: req.userId }
+        where: { id: req.userId },
       });
       const typeProduct = await UserCol.findOne({
-        where: { id: idProduct }
-      })
+        where: { id: idProduct },
+      });
       console.log(is_membership);
       console.log(typeProduct);
       // const isMembership = await prisma.user.findUnique({
