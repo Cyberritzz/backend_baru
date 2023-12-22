@@ -42,8 +42,6 @@ const authController = {
     const { email, password } = req.body;
 
     const user = await UserCol.findOne({ email });
-    console.log(user._id);
-
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -56,9 +54,14 @@ const authController = {
       expiresIn: 86400,
     });
 
-    req.session.token = token;
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: "none",
+    });
 
-    res.json({ message: "Login successful", id : user._id });
+    res.json({ message: "Login successful", id: user._id });
   },
 
   adminLogin: async (req, res) => {
@@ -82,7 +85,12 @@ const authController = {
         }
       );
 
-      req.session.token = token;
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: "none",
+      });
 
       res.json({ message: "Login successful" });
     } catch (error) {
@@ -91,25 +99,13 @@ const authController = {
   },
 
   logout: async (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Unable to logout" });
-      }
-
-      res.clearCookie(process.env.COOKIE, { path: "/", domain: "localhost" });
-      res.json({ message: "Logout successful" });
-    });
+    res.clearCookie("token");
+    res.json({ message: "Logout successful" });
   },
 
   adminLogout: async (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Unable to logout" });
-      }
-
-      res.clearCookie(process.env.COOKIE, { path: "/", domain: "localhost" });
-      res.json({ message: "Logout successful" });
-    });
+    res.clearCookie("token");
+    res.json({ message: "Logout successful" });
   },
 
   forget: async (req, res) => {
@@ -132,7 +128,7 @@ const authController = {
         }
       );
 
-      const url = `${process.env.SECRET_CLIENT_HOST}/forgot-password/${token}`;
+      const url = `${process.env.SECRET_CLIENT_HOST}/reset-password/${token}`;
       const sendEmail = new Email({
         from: '"Fred Foo 👻"', // sender address
         to: email, // list of receivers

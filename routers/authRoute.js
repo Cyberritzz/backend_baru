@@ -9,7 +9,6 @@ authRoute.post("/admin/login", authController.adminLogin);
 authRoute.post("/admin/register", authController.registerAdmin);
 authRoute.post("/admin/logout", authController.adminLogout);
 authRoute.post("/forget-password", authController.forget);
-authRoute.post("/forget-password", authController.forget);
 authRoute.post("/reset-password", authController.resetPassword);
 
 export default authRoute;
