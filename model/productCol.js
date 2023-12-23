@@ -7,7 +7,9 @@ const schemaProduct = mongoose.Schema({
     required: true,
   },
   thumbnail: String,
+  thumbnail_public_id : String,
   source_file: String,
+  source_file_public_id : String,
   description: String,
   type_product: {
     type: String,
