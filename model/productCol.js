@@ -10,6 +10,8 @@ const schemaProduct = mongoose.Schema({
   thumbnail_public_id : String,
   source_file: String,
   source_file_public_id : String,
+  signatureThumbnail : String,
+  signatureSourceFile : String,
   description: String,
   type_product: {
     type: String,
@@ -21,6 +23,7 @@ const schemaProduct = mongoose.Schema({
     enum: ["templates", "web_design_figma", "mobile_design_figma"],
     default: "web_design_figma",
   },
+
   created_at: {
     type: Date,
     default: moment.tz(Date.now(), "Asia/Bangkok"),

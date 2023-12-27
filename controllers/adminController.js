@@ -27,7 +27,16 @@ const adminController = {
   updateProduk: async (req, res) => {
     try {
       let id = req.params.id;
-      const { name_product, description, category, type_product,thumbnail_public_id,source_file_public_id, thumbnail,source_file } = req.body;
+      const { name_product, 
+        description, 
+        category, 
+        type_product,
+        thumbnail_public_id,
+        source_file_public_id, 
+        signatureThumbnail,
+        signatureSourceFile,
+        thumbnail,
+        source_file } = req.body;
 
       const result = await ProductCol.updateOne(
         { _id: id },
@@ -39,6 +48,8 @@ const adminController = {
             type_product,
             thumbnail_public_id,
             source_file_public_id,
+            signatureThumbnail,
+            signatureSourceFile,
             source_file,
             thumbnail
           },
@@ -108,6 +119,8 @@ const adminController = {
         type_product, 
         thumbnail, 
         source_file,
+        signatureThumbnail,
+        signatureSourceFile,
         thumbnail_public_id,
         source_file_public_id } = req.body;
 
@@ -118,6 +131,8 @@ const adminController = {
         type_product: type_product,
         thumbnail: thumbnail,
         source_file: source_file,
+        signatureThumbnail : signatureThumbnail,
+        signatureSourceFile : signatureSourceFile,
         thumbnail_public_id : thumbnail_public_id,
         source_file_public_id : source_file_public_id
       });
