@@ -45,24 +45,11 @@ const authJwt = {
 
   isNotMembership: async (req, res, next) => {
     try {
-      const idProduct = parseInt(req.params.id);
-      const is_membership = await UserCol.findOne({
-        where: { id: req.userId },
-      });
-      const typeProduct = await UserCol.findOne({
-        where: { id: idProduct },
-      });
+      const is_membership = await UserCol.findOne({_id: req.params.id_user});
+      const typeProduct = await UserCol.findOne({_id : req.params.id});
+      console.log(req.params.id_user);
       console.log(is_membership);
       console.log(typeProduct);
-      // const isMembership = await prisma.user.findUnique({
-      //   where: { id: req.userId },
-      //   select: { is_membership: true },
-      // });
-
-      // const typeProduct = await prisma.product.findFirst({
-      //   where: { id: idProduct },
-      //   select: { type_product: true },
-      // });
 
       if (!req.userId) {
         return res.status(401).json({
