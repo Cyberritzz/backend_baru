@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import UserCol from "../model/userCol.js";
+import ProductCol from "../model/productCol.js";
 
 const authJwt = {
   verifyToken: (req, res, next) => {
@@ -46,10 +47,10 @@ const authJwt = {
   isNotMembership: async (req, res, next) => {
     try {
       const is_membership = await UserCol.findOne({_id: req.params.id_user});
-      const typeProduct = await UserCol.findOne({_id : req.params.id});
-      console.log(req.params.id_user);
-      console.log(is_membership);
-      console.log(typeProduct);
+      const typeProduct = await ProductCol.findOne({_id : req.params.id});
+      // console.log(req.params.id_user);
+      // console.log(is_membership);
+      // console.log(`type product : ${typeProduct.type_product}`);
 
       if (!req.userId) {
         return res.status(401).json({
