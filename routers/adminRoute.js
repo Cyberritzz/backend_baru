@@ -66,4 +66,19 @@ adminRoute.delete(
   adminController.deleteUserById
 );
 
+// delete thumbnail from cloudinary
+adminRoute.delete(
+  "/admin/dashboard/cloudinary/delete-thumbnail",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.deleteThumbnail
+);
+
+// delete Raw File from cloudinary
+adminRoute.delete(
+  "/admin/dashboard/cloudinary/delete-raw-file",
+  [authJwt.verifyToken, authJwt.isAdmin],
+  adminController.deleteRawFile
+);
+
+
 export default adminRoute;
