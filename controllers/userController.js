@@ -65,6 +65,14 @@ const userController = {
       const limit = await UserCol.findOne({ _id: userId });
       const product = await ProductCol.findOne({ _id: productId });
 
+      if (
+        (limit.is_membership === "free" && product.type_product !== "free") ||
+        (["level1_monthly", "level1_lifetime"].includes(limit.is_membership) &&
+          product.category === "templates")
+      ) {
+        return res.status(401).send({ message: "Unauthorized" });
+      }
+
       await UserCol.findOneAndUpdate(
         { _id: userId },
         {
@@ -78,14 +86,7 @@ const userController = {
           },
         }
       );
-      if (
-        (limit.is_membership === "free" && product.type_product !== "free") ||
-        (["level1_monthly", "level1_lifetime"].includes(limit.is_membership) &&
-          product.category === "templates")
-      ) {
-        return res.status(401).send({ message: "Unauthorized" });
-      }
-
+      
       if (limit.is_membership === "free") {
         await UserCol.findOneAndUpdate(
           { _id: userId },
