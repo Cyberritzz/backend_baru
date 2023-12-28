@@ -1,6 +1,13 @@
 import fs from "fs";
 import ProductCol from "../model/productCol.js";
 import UserCol from "../model/userCol.js";
+import cloudinary from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: 'dpemgsyje',
+    api_key: '536212312211878',
+    api_secret: 'J128DxIZoJ4T9ncC_c_VAe8_1Yc'
+});
 
 const adminController = {
   adminDashboard: async (req, res) => {
@@ -212,7 +219,38 @@ const adminController = {
     } catch (error) {
       res.status(500).json({message: error.message});
     }
-  }
+  },
+
+  deleteThumbnail : async (req,res) =>{
+    try {
+      const public_id = req.query.public_id;
+
+      cloudinary.v2.uploader.destroy(public_id, function(error, result){
+        if(result){
+          return res.send(result)
+        }
+        res.send({message : error})
+      })
+    } catch (error) {
+      res.status(500).send({message : error.message})
+    }
+  },
+
+  deleteRawFile : async (req,res) =>{
+    try {
+      const public_id = req.query.public_id;
+
+      cloudinary.v2.uploader.destroy(public_id, { invalidate: true, resource_type: "raw"}, function(error, result){
+        if(result){
+          return res.send(result)
+        }
+        res.send({message : error})
+      })
+    } catch (error) {
+      res.status(500).send({message : error.message})
+    }
+  },
+  
 };
 
 export default adminController;
