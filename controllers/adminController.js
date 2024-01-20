@@ -19,7 +19,8 @@ const adminController = {
   },
   getProduk: async (req, res) => {
     try {
-      const result = await ProductCol.find();
+      const {limit, offset} = req.query;
+      const result = await ProductCol.find().limit(limit).skip(offset);
 
       if (!result) {
         res.status(404).send({ message: "data not found" });
@@ -154,7 +155,8 @@ const adminController = {
 
   getUsers: async (req, res) => {
     try {
-      const result = await UserCol.find();
+      const {limit, offset} = req.query;
+      const result = await UserCol.find().limit(limit).skip(offset);
       if (!result) {
         res.status(404).send({ message: "data not found" });
       }
@@ -177,8 +179,6 @@ const adminController = {
           }
         }
       );
-
-      console.log(result);
       if (result.modifiedCount === 0) {
         return res.status(401).send({ message: "Update Failed" });
       }
