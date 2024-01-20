@@ -8,12 +8,12 @@ import ProductCol from "../model/productCol.js";
 const userController = {
   getProduct : async (req, res) => {
     try {
-      
+      const {limit, offset} = req.query;
       const result = await ProductCol.find({}, {
         created_at : 0,
         source_file : 0,
         __v :0
-      });
+      }).limit(limit).skip(offset);
   
       if (!result || result.length === 0) {
         return res.status(404).json({ message: "Data not found" });
@@ -24,8 +24,6 @@ const userController = {
       res.status(500).json({ message: error.message });
     }
   },
-  
-
   getProductById: async (req, res) => {
     try {
 
@@ -41,7 +39,6 @@ const userController = {
       res.status(500).send({ message: error.message });
     }
   },
-
   getUserDetail: async (req, res) => {
     try {
       const id = req.params.id;
@@ -56,7 +53,6 @@ const userController = {
       res.status(500).send({ message: error.message });
     }
   },
-
   downloadFile: async (req, res) => {
     try {
       const productId = req.params.id;
@@ -128,7 +124,6 @@ const userController = {
       res.status(500).send({ message: err.message });
     }
   },
-
   updatePassword: async (req, res) => {
     try {
       const id = req.params.id;
@@ -158,11 +153,9 @@ const userController = {
       res.status(500).send({ message: error.message });
     }
   },
-
   getHistory: async (req, res) => {
     try {
       const id = req.params.id;
-
       const result = await UserCol.findOne(
         { _id:id},
         {
