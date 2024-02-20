@@ -3,15 +3,15 @@ import mongoose from "mongoose";
 import supertest from "supertest";
 import AdminCol from "../../src/model/adminCol";
 
-beforeAll(function () {
-  mongoose.connect(process.env.DATABASE_URL_TEST);
+beforeAll(async function () {
+  await mongoose.connect(process.env.DATABASE_URL_TEST);
   const db = mongoose.connection;
   db.on("error", (err) => console.log(err));
 });
 
 afterAll(async function () {
   await AdminCol.deleteOne({ username: "haskuy" });
-  mongoose.connection.close();
+  await mongoose.connection.close();
 });
 
 const data = {

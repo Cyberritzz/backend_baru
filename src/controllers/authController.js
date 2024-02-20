@@ -5,24 +5,31 @@ import AdminCol from "../model/adminCol.js";
 import UserCol from "../model/userCol.js";
 import AdminValidation from "../validation/loginAdmin.js";
 import ResponseErr from "../responseError/responseError.js";
+import UsersValidation from "../validation/registerUser.js";
 
 const authController = {
-  register: async (req, res) => {
+  register: async (req, res, next) => {
     try {
-      const { fullname, email, contact, password } = req.body;
-      const hashedPassword = bcrypt.hashSync(password, 10);
+      const val = await UsersValidation.register(req.body);
+
+      const check = await UserCol.findOne({ email: val.email });
+      if (check) {
+        throw new ResponseErr(400, "Account already exists");
+      }
+
+      const hashedPassword = await bcrypt.hash(val.password, 10);
 
       const data = new UserCol({
-        fullname,
-        email,
-        contact,
+        fullname: val.fullname,
+        email: val.email,
+        contact: val.contact,
         password: hashedPassword,
       });
       await data.save();
 
-      res.json({ message: "Account Registered" });
+      res.status(200).json({ message: "Account Registered" });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(error);
     }
   },
 
