@@ -1,5 +1,3 @@
-// const prisma = require("../database");
-
 const accountVerify = async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
