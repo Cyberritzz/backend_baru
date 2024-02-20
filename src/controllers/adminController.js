@@ -1,4 +1,3 @@
-import fs from "fs";
 import ProductCol from "../model/productCol.js";
 import UserCol from "../model/userCol.js";
 import cloudinary from 'cloudinary';
