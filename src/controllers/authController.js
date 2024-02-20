@@ -5,7 +5,7 @@ import AdminCol from "../model/adminCol.js";
 import UserCol from "../model/userCol.js";
 import AdminValidation from "../validation/loginAdmin.js";
 import ResponseErr from "../responseError/responseError.js";
-import UsersValidation from "../validation/registerUser.js";
+import UsersValidation from "../validation/user.js";
 
 const authController = {
   register: async (req, res, next) => {
@@ -47,30 +47,38 @@ const authController = {
     }
   },
 
-  login: async (req, res) => {
-    const { email, password } = req.body;
+  login: async (req, res, next) => {
+    try {
+      const val = await UsersValidation.login(req.body);
 
-    const user = await UserCol.findOne({ email });
-    const passwordMatch = await bcrypt.compare(password, user.password);
+      const user = await UserCol.findOne({ email: val.email });
+      if (!user) {
+        throw new ResponseErr(400, "Check your email or password");
+      }
 
-    if (!passwordMatch) {
-      return res.status(401).json({ message: "Incorrect password" });
+      const passwordMatch = await bcrypt.compare(val.password, user.password);
+
+      if (!passwordMatch) {
+        throw new ResponseErr(400, "Check your email or password");
+      }
+
+      const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
+        algorithm: "HS256",
+        allowInsecureKeySizes: true,
+        expiresIn: 86400,
+      });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: "none",
+      });
+
+      res.status(200).json({ message: "Login successful", id: user._id });
+    } catch (error) {
+      next(error);
     }
-
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
-      algorithm: "HS256",
-      allowInsecureKeySizes: true,
-      expiresIn: 86400,
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      sameSite: "none",
-    });
-
-    res.json({ message: "Login successful", id: user._id });
   },
 
   adminLogin: async (req, res, next) => {

@@ -59,3 +59,70 @@ describe("Register User", () => {
     ]);
   });
 });
+
+describe("Login User", () => {
+  it("should success", async () => {
+    const data = {
+      fullname: "testing",
+      email: "testing@gmail.com",
+      contact: "089283",
+      password: "1234",
+    };
+    const resRegister = await supertest(app).post("/register").send(data);
+    expect(resRegister.statusCode).toBe(200);
+
+    const res = await supertest(app).post("/login").send({
+      email: data.email,
+      password: data.password,
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("Login successful");
+    expect(res.get("Set-Cookie").length).toBe(1);
+
+    await UserCol.deleteOne({ email: data.email });
+  });
+
+  it("should error required", async () => {
+    const res = await supertest(app).post("/login").send({
+      email: " ",
+      password: " ",
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual([
+      '"email" is not allowed to be empty',
+      ' "password" is not allowed to be empty',
+    ]);
+  });
+
+  it("should error email not found", async () => {
+    const res = await supertest(app).post("/login").send({
+      email: "testing@gmail.com",
+      password: "123",
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["Check your email or password"]);
+  });
+
+  it("should error incorrect password", async () => {
+    const data = {
+      fullname: "testing",
+      email: "testing1@gmail.com",
+      contact: "089283",
+      password: "1234",
+    };
+    const resRegister = await supertest(app).post("/register").send(data);
+    expect(resRegister.statusCode).toBe(200);
+
+    const res = await supertest(app).post("/login").send({
+      email: "testing1@gmail.com",
+      password: "123",
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["Check your email or password"]);
+    await UserCol.deleteOne({ email: data.email });
+  });
+});
