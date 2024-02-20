@@ -16,6 +16,19 @@ class UsersSchema {
       password: Joi.string().trim().required(),
     });
   }
+
+  static get forgetPasswordSchema() {
+    return Joi.object({
+      email: Joi.string().trim().email().required(),
+    });
+  }
+
+  static get resetPasswordSchema() {
+    return Joi.object({
+      newPassword: Joi.string().trim().required(),
+      token: Joi.string().trim().required(),
+    });
+  }
 }
 
 class UsersValidation extends UsersSchema {
@@ -27,6 +40,18 @@ class UsersValidation extends UsersSchema {
 
   static login(body) {
     return super.loginSchema.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+
+  static forgotPassword(body) {
+    return super.forgetPasswordSchema.validateAsync(body, {
+      abortEarly: false,
+    });
+  }
+
+  static resetPassword(body) {
+    return super.resetPasswordSchema.validateAsync(body, {
       abortEarly: false,
     });
   }
