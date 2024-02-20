@@ -1,6 +1,8 @@
-describe('otp generator', () => {
-  it('should success', () => {
-    
-    expect(100).toBe(100)
+import otpGenerate from "../../src/utility/otpGenerator";
+
+describe("otp generator", () => {
+  it("should success", () => {
+    const result = otpGenerate();
+    expect(result.length).toBe(6);
   });
 });
