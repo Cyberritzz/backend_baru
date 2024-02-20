@@ -3,8 +3,8 @@ import joi from "joi";
 class AdminSchema {
   static get loginSchema() {
     return joi.object({
-      email: joi.string().email().required(),
-      password: joi.string().required(),
+      email: joi.string().trim().email().required(),
+      password: joi.string().trim().required(),
     });
   }
 }

@@ -1,5 +1,6 @@
 import joi from "joi";
 import ResponseErr from "../responseError/responseError.js";
+import jwt from "jsonwebtoken";
 
 function errorHandling(err, req, res, next) {
   if (!err) {
@@ -12,6 +13,9 @@ function errorHandling(err, req, res, next) {
     return;
   } else if (err instanceof ResponseErr) {
     res.status(err.getStatusCode).json({ errors: [err.message] });
+    return;
+  } else if (err instanceof jwt.JsonWebTokenError) {
+    res.status(400).json({ errors: [err.message] });
     return;
   }
 
