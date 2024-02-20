@@ -146,7 +146,7 @@ describe("Forgot Password User", () => {
     contact: "089283",
     password: "1234",
   };
-  it.skip("should success", async () => {
+  it("should success", async () => {
     const resRegister = await supertest(app).post("/register").send(data);
     expect(resRegister.statusCode).toBe(200);
 
