@@ -60,10 +60,10 @@ const config = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  // globalSetup: undefined,
+  // globalSetup: "./globalSetup.js",
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  // globalTeardown: undefined,
+  // globalTeardown: "./globalTeardown.js",
 
   // A set of global variables that need to be available in all test environments
   // globals: {},
@@ -174,9 +174,9 @@ const config = {
   // testRunner: "jest-circus/runner",
 
   // A map from regular expressions to paths to transformers
-  "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
-    },
+  transform: {
+    "^.+\\.[t|j]sx?$": "babel-jest",
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [

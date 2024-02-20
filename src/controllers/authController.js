@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import Email from "../utility/sendEmail.js";
 import AdminCol from "../model/adminCol.js";
 import UserCol from "../model/userCol.js";
+import AdminValidation from "../validation/loginAdmin.js";
+import ResponseErr from "../responseError/responseError.js";
 
 const authController = {
   register: async (req, res) => {
@@ -64,12 +66,16 @@ const authController = {
     res.json({ message: "Login successful", id: user._id });
   },
 
-  adminLogin: async (req, res) => {
-    const { email, password } = req.body;
-
+  adminLogin: async (req, res, next) => {
     try {
-      const admin = await AdminCol.findOne({ email });
-      const passwordMatch = await bcrypt.compare(password, admin.password);
+      const val = await AdminValidation.login(req.body);
+      const admin = await AdminCol.findOne({ email: val.email });
+
+      if (!admin) {
+        throw new ResponseErr(404, "Admin Not Found");
+      }
+
+      const passwordMatch = await bcrypt.compare(val.password, admin.password);
 
       if (!passwordMatch) {
         return res.status(401).json({ message: "Incorrect password" });
@@ -92,20 +98,20 @@ const authController = {
         sameSite: "none",
       });
 
-      res.json({ message: "Login successful" });
+      res.status(200).json({ message: "Login successful" });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(error);
     }
   },
 
   logout: async (req, res) => {
     res.clearCookie("token");
-    res.json({ message: "Logout successful" });
+    res.status(200).json({ message: "Logout successful" });
   },
 
   adminLogout: async (req, res) => {
     res.clearCookie("token");
-    res.json({ message: "Logout successful" });
+    res.status(200).json({ message: "Logout successful" });
   },
 
   forget: async (req, res) => {

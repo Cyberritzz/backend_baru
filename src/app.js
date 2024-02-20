@@ -1,21 +1,14 @@
 import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
+import errorHandling from "./middlewares/errorHandling.js";
+import dotenv from "dotenv";
 dotenv.config();
 
 // route
 import adminRoute from "./routers/adminRoute.js";
 import authRoute from "./routers/authRoute.js";
 import userRoute from "./routers/userRoute.js";
-
-mongoose.connect(process.env.DATABASE_URL);
-
-const db = mongoose.connection;
-db.on("error", (err) => console.log(err));
-db.once("open", () => console.log("database kenek"));
 
 const app = express();
 
@@ -40,5 +33,6 @@ app.use(
 app.use(adminRoute);
 app.use(authRoute);
 app.use(userRoute);
+app.use(errorHandling);
 
-export default app
+export default app;
