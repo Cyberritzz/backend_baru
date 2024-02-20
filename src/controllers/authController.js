@@ -120,12 +120,22 @@ const authController = {
   },
 
   logout: async (req, res) => {
-    res.clearCookie("token");
-    res.status(200).json({ message: "Logout successful" });
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: true,
+      maxAge: 0,
+      sameSite: "none",
+    });
+    res.status(200).status(200).json({ message: "Logout successful" });
   },
 
   adminLogout: async (req, res) => {
-    res.clearCookie("token");
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: true,
+      maxAge: 0,
+      sameSite: "none",
+    });
     res.status(200).json({ message: "Logout successful" });
   },
 
