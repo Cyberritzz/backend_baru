@@ -25,8 +25,7 @@ userRoute.get(
 
 userRoute.get(
   "/user/download/:id/:id_user",
-  [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
-  checkLimit,
+  [authJwt.verifyToken, authJwt.isUser, checkLimit],
   userController.downloadFile
 );
 

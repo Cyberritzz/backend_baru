@@ -64,11 +64,15 @@ const authController = {
         throw new ResponseErr(400, "Check your email or password");
       }
 
-      const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
-        algorithm: "HS256",
-        allowInsecureKeySizes: true,
-        expiresIn: 86400,
-      });
+      const token = jwt.sign(
+        { id: user.id, isAdmin: false },
+        process.env.SECRET_KEY,
+        {
+          algorithm: "HS256",
+          allowInsecureKeySizes: true,
+          expiresIn: 86400,
+        }
+      );
 
       res.cookie("token", token, {
         httpOnly: true,

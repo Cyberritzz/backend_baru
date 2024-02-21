@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import moment from "moment-timezone";
+import modelConstanta from "./modelConstanta.js";
 
 const schemaUser = mongoose.Schema({
   email: {
@@ -17,18 +18,18 @@ const schemaUser = mongoose.Schema({
   },
   is_membership: {
     type: String,
-    required : true,
+    required: true,
     enum: {
-      values:[
-      "free",
-      "level1_monthly",
-      "level1_lifetime",
-      "level2_monthly",
-      "level2_lifetime",
-    ],
-    message : "invalid membership value"
+      values: [
+        modelConstanta.isMembership.free,
+        modelConstanta.isMembership.level1_lifetime,
+        modelConstanta.isMembership.level1_monthly,
+        modelConstanta.isMembership.level2_lifetime,
+        modelConstanta.isMembership.level2_monthly,
+      ],
+      message: "invalid membership value",
     },
-    default: "free",
+    default: modelConstanta.isMembership.free,
   },
   fullname: String,
   contact: String,
@@ -50,9 +51,9 @@ const schemaUser = mongoose.Schema({
   history: [
     {
       id_product: String,
-      name_product : String,
-      thumbnail : String,
-      category : String,
+      name_product: String,
+      thumbnail: String,
+      category: String,
       date: {
         type: Date,
         default: moment.tz(Date.now(), "Asia/Bangkok"),
