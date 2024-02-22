@@ -1,11 +1,16 @@
 import UserCol from "../model/userCol.js";
 import ResponseErr from "../responseError/responseError.js";
 import modelConstanta from "../model/modelConstanta.js";
+import CustomeValidation from "../validation/custome.js";
 
 const checkLimit = async (req, res, next) => {
   try {
-    const id_user = req.params.id_user;
-    const user = await UserCol.findOne({ _id: id_user });
+    const val = await CustomeValidation.doubleParameterObjectID({
+      productID: req.params.id,
+      userID: req.params.id_user,
+    });
+
+    const user = await UserCol.findOne({ _id: val.userID });
 
     if (!user) {
       throw new ResponseErr(401, "Unauthorized");
