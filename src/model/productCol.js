@@ -10,9 +10,18 @@ const schemaProduct = mongoose.Schema({
   thumbnail: String,
   thumbnail_public_id: String,
   source_file: String,
-  source_file_public_id: String,
-  signatureThumbnail: String,
-  signatureSourceFile: String,
+  source_file_public_id: {
+    type: String,
+    default: "",
+  },
+  signatureThumbnail: {
+    type: String,
+    default: "",
+  },
+  signatureSourceFile: {
+    type: String,
+    default: "",
+  },
   description: String,
   type_product: {
     type: String,
