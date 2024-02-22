@@ -1,6 +1,9 @@
 import ProductCol from "../model/productCol.js";
 import UserCol from "../model/userCol.js";
 import cloudinary from "cloudinary";
+import ProductValidation from "../validation/product.js";
+import ResponseErr from "../responseError/responseError.js";
+import isObjectID from "../utility/mongo.js";
 
 cloudinary.config({
   cloud_name: "dpemgsyje",
@@ -28,46 +31,38 @@ const adminController = {
     }
   },
 
-  updateProduk: async (req, res) => {
+  updateProduk: async (req, res, next) => {
     try {
       let id = req.params.id;
-      const {
-        name_product,
-        description,
-        category,
-        type_product,
-        thumbnail_public_id,
-        source_file_public_id,
-        signatureThumbnail,
-        signatureSourceFile,
-        thumbnail,
-        source_file,
-      } = req.body;
+
+      const validObjectID = isObjectID(id);
+      if (!validObjectID) {
+        throw new ResponseErr(400, "ID Invalid");
+      }
+
+      const val = await ProductValidation.valid(req.body);
 
       const result = await ProductCol.updateOne(
         { _id: id },
         {
           $set: {
-            name_product,
-            description,
-            category,
-            type_product,
-            thumbnail_public_id,
-            source_file_public_id,
-            signatureThumbnail,
-            signatureSourceFile,
-            source_file,
-            thumbnail,
+            name_product: val.name_product,
+            description: val.description,
+            category: val.category,
+            type_product: val.type_product,
+            thumbnail: val.thumbnail,
+            source_file: val.source_file,
+            thumbnail_public_id: val.thumbnail_public_id,
           },
         }
       );
 
-      if (result.modifiedCount === 0) {
-        return res.status(401).send({ message: "Update Failed" });
+      if (result.matchedCount === 0) {
+        throw new ResponseErr(404, "Product Not Found");
       }
-      res.status(200).send({ message: "Update Success" });
+      res.status(200).json({ message: "Update Success" });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
   updateFoto: async (req, res) => {
@@ -116,39 +111,25 @@ const adminController = {
     }
   },
 
-  uploadProduk: async (req, res) => {
+  uploadProduk: async (req, res, next) => {
     try {
-      const {
-        name_product,
-        description,
-        category,
-        type_product,
-        thumbnail,
-        source_file,
-        signatureThumbnail,
-        signatureSourceFile,
-        thumbnail_public_id,
-        source_file_public_id,
-      } = req.body;
+      const val = await ProductValidation.valid(req.body);
 
       const data = new ProductCol({
-        name_product: name_product,
-        description: description,
-        category: category,
-        type_product: type_product,
-        thumbnail: thumbnail,
-        source_file: source_file,
-        signatureThumbnail: signatureThumbnail,
-        signatureSourceFile: signatureSourceFile,
-        thumbnail_public_id: thumbnail_public_id,
-        source_file_public_id: source_file_public_id,
+        name_product: val.name_product,
+        description: val.description,
+        category: val.category,
+        type_product: val.type_product,
+        thumbnail: val.thumbnail,
+        source_file: val.source_file,
+        thumbnail_public_id: val.thumbnail_public_id,
       });
 
       await data.save();
 
       res.status(200).send({ message: "Upload Success" });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
 
@@ -187,18 +168,24 @@ const adminController = {
     }
   },
 
-  deleteProductById: async (req, res) => {
+  deleteProductById: async (req, res, next) => {
     try {
-      const filter = req.params.id;
-      const result = await ProductCol.deleteOne({ _id: filter });
+      const id = req.params.id;
 
-      if (result.deletedCount === 0) {
-        return res.status(401).send({ message: "Delete Failed" });
+      const validObjectID = isObjectID(id);
+      if (!validObjectID) {
+        throw new ResponseErr(400, "ID Invalid");
       }
 
-      res.status(200).json({ message: "delete success" });
+      const result = await ProductCol.deleteOne({ _id: id });
+
+      if (result.deletedCount === 0) {
+        throw new ResponseErr(404, "Product Not Found");
+      }
+
+      res.status(200).json({ message: "Delete Success" });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      next(error);
     }
   },
 
