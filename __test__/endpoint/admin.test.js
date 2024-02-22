@@ -4,6 +4,7 @@ import supertest from "supertest";
 import AdminCol from "../../src/model/adminCol";
 import modelConstanta from "../../src/model/modelConstanta";
 import ProductCol from "../../src/model/productCol";
+import UserCol from "../../src/model/userCol";
 
 const dataRegister = {
   username: "haskuy",
@@ -262,5 +263,87 @@ describe("Delete product", () => {
 
   afterAll(async function () {
     await ProductCol.deleteOne({ _id: productId });
+  });
+});
+
+describe("Put membership", () => {
+  const dataUser = {
+    fullname: "hasan",
+    email: "hasan@gmail.com",
+    contact: "089899909090",
+    password: "123",
+  };
+
+  let idUser = "";
+
+  beforeAll(async function () {
+    await supertest(app).post("/register").send(dataUser);
+
+    const user = await UserCol.findOne({ username: dataUser.username });
+
+    idUser = user._id.toString();
+  });
+
+  it("should success", async () => {
+    const res = await supertest(app)
+      .put(`/admin/dashboard/edit-membership/${idUser}`)
+      .send({
+        is_membership: modelConstanta.isMembership.level1_lifetime,
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("Update Membership Success");
+  });
+
+  it("should error required", async () => {
+    const res = await supertest(app)
+      .put(`/admin/dashboard/edit-membership/${idUser}`)
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(['"is_membership" is required']);
+  });
+
+  it("should error enum", async () => {
+    const res = await supertest(app)
+      .put(`/admin/dashboard/edit-membership/${idUser}`)
+      .send({
+        is_membership: "sdfs",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual([
+      '"is_membership" must be one of [free, level1_monthly, level1_lifetime, level2_monthly, level2_lifetime]',
+    ]);
+  });
+
+  it("should error object id invalid", async () => {
+    const res = await supertest(app)
+      .put(`/admin/dashboard/edit-membership/28939a`)
+      .send({
+        is_membership: "sdfs",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["ID Invalid"]);
+  });
+
+  it("should error user not found", async () => {
+    const res = await supertest(app)
+      .put(`/admin/dashboard/edit-membership/659522f33bbdf5cb8e8803f2`)
+      .send({
+        is_membership: modelConstanta.isMembership.free,
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.errors).toEqual(["User Not Found"]);
+  });
+
+  afterAll(async function () {
+    await UserCol.deleteOne({ _id: idUser });
   });
 });

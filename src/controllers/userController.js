@@ -4,21 +4,28 @@ import Email from "../utility/sendEmail.js";
 import UserCol from "../model/userCol.js";
 import otpGenerator from "../utility/otpGenerator.js";
 import ProductCol from "../model/productCol.js";
+import modelConstanta from "../model/modelConstanta.js";
+import ResponseErr from "../responseError/responseError.js";
 
 const userController = {
-  getProduct : async (req, res) => {
+  getProduct: async (req, res) => {
     try {
-      const {limit, offset} = req.query;
-      const result = await ProductCol.find({}, {
-        created_at : 0,
-        source_file : 0,
-        __v :0
-      }).limit(limit).skip(offset);
-  
+      const { limit, offset } = req.query;
+      const result = await ProductCol.find(
+        {},
+        {
+          created_at: 0,
+          source_file: 0,
+          __v: 0,
+        }
+      )
+        .limit(limit)
+        .skip(offset);
+
       if (!result || result.length === 0) {
         return res.status(404).json({ message: "Data not found" });
       }
-  
+
       res.status(200).json(result);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -26,13 +33,15 @@ const userController = {
   },
   getProductById: async (req, res) => {
     try {
-
       const id = req.params.id;
-      const result = await ProductCol.findOne({ _id : id }, {
-        created_at : 0,
-        source_file : 0,
-        __v:0
-      });
+      const result = await ProductCol.findOne(
+        { _id: id },
+        {
+          created_at: 0,
+          source_file: 0,
+          __v: 0,
+        }
+      );
 
       res.json(result);
     } catch (error) {
@@ -42,31 +51,43 @@ const userController = {
   getUserDetail: async (req, res) => {
     try {
       const id = req.params.id;
-      const result = await UserCol.findOne({ _id : id }, {
-        __v:0,
-        password:0,
-        _id:0,
-        limit:0
-      });
+      const result = await UserCol.findOne(
+        { _id: id },
+        {
+          __v: 0,
+          password: 0,
+          _id: 0,
+          limit: 0,
+        }
+      );
       res.json(result);
     } catch (error) {
       res.status(500).send({ message: error.message });
     }
   },
-  downloadFile: async (req, res) => {
+  downloadFile: async (req, res, next) => {
     try {
       const productId = req.params.id;
       const userId = req.params.id_user;
 
-      const limit = await UserCol.findOne({ _id: userId });
+      const user = await UserCol.findOne({ _id: userId });
       const product = await ProductCol.findOne({ _id: productId });
 
+      const allow = [
+        modelConstanta.isMembership.level1_monthly,
+        modelConstanta.isMembership.level1_lifetime,
+      ];
+
       if (
-        (limit.is_membership === "free" && product.type_product !== "free") ||
-        (["level1_monthly", "level1_lifetime"].includes(limit.is_membership) &&
-          product.category === "templates")
+        user.is_membership === modelConstanta.isMembership.free &&
+        product.type_product == modelConstanta.typeProduct.premium
       ) {
-        return res.status(401).send({ message: "Unauthorized" });
+        throw new ResponseErr(403, "Can't download premium product");
+      } else if (
+        allow.includes(user.is_membership) &&
+        product.category === modelConstanta.categoryProduct.templates
+      ) {
+        throw new ResponseErr(403, "Can't download template product");
       }
 
       await UserCol.findOneAndUpdate(
@@ -74,21 +95,21 @@ const userController = {
         {
           $push: {
             history: {
-              id_product : productId,
-              name_product : product.name_product,
-              thumbnail : product.thumbnail,
-              category : product.category
+              id_product: productId,
+              name_product: product.name_product,
+              thumbnail: product.thumbnail,
+              category: product.category,
             },
           },
         }
       );
-      
-      if (limit.is_membership === "free") {
+
+      if (user.is_membership === "free") {
         await UserCol.findOneAndUpdate(
           { _id: userId },
           {
             $set: {
-              limit: limit.limit - 1,
+              limit: user.limit - 1,
             },
           }
         );
@@ -96,22 +117,22 @@ const userController = {
 
       res.status(200).json(product.source_file);
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
   updateUserMail: async (req, res) => {
     try {
       const id = req.params.id;
-      const {fullname,email,contact} = req.body;
+      const { fullname, email, contact } = req.body;
 
       const result = await UserCol.updateOne(
-        { _id : id },
+        { _id: id },
         {
-          $set :{
+          $set: {
             fullname,
             email,
-            contact
-          }
+            contact,
+          },
         }
       );
       console.log(result);
@@ -129,7 +150,7 @@ const userController = {
       const id = req.params.id;
       const { oldPassword, newPassword } = req.body;
 
-      const user = await UserCol.findOne({_id : id });
+      const user = await UserCol.findOne({ _id: id });
 
       const passwordMatch = await bcrypt.compare(oldPassword, user.password);
 
@@ -139,15 +160,15 @@ const userController = {
 
       const newHashedPassword = bcrypt.hashSync(newPassword, 10);
 
-      const updateData =  await UserCol.updateOne(
-        { _id : id },
+      const updateData = await UserCol.updateOne(
+        { _id: id },
         {
-          $set : {
-            password : newHashedPassword
-          }
+          $set: {
+            password: newHashedPassword,
+          },
         }
       );
-      
+
       res.status(200).send({ message: "Update Success" });
     } catch (error) {
       res.status(500).send({ message: error.message });
@@ -157,10 +178,10 @@ const userController = {
     try {
       const id = req.params.id;
       const result = await UserCol.findOne(
-        { _id:id},
+        { _id: id },
         {
-          history : 1,
-          _id : 0
+          history: 1,
+          _id: 0,
         }
       );
 

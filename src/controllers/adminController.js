@@ -4,6 +4,7 @@ import cloudinary from "cloudinary";
 import ProductValidation from "../validation/product.js";
 import ResponseErr from "../responseError/responseError.js";
 import isObjectID from "../utility/mongo.js";
+import CustomeValidation from "../validation/custome.js";
 
 cloudinary.config({
   cloud_name: "dpemgsyje",
@@ -145,26 +146,30 @@ const adminController = {
     }
   },
 
-  putMembership: async (req, res) => {
+  putMembership: async (req, res, next) => {
     try {
       const id = req.params.id;
-      let is_membership = req.body.is_membership;
+      if (!isObjectID(id)) {
+        throw new ResponseErr(400, "ID Invalid");
+      }
 
-      const result = await UserCol.findOneAndUpdate(
+      const val = await CustomeValidation.membership(req.body);
+      const result = await UserCol.updateOne(
         { _id: id },
         {
           $set: {
-            is_membership: is_membership,
+            is_membership: val.is_membership,
           },
         }
       );
-      if (result.modifiedCount === 0) {
-        return res.status(401).send({ message: "Update Failed" });
+
+      if (result.matchedCount === 0) {
+        throw new ResponseErr(404, "User Not Found");
       }
 
-      res.status(200).json({ message: "update success" });
+      res.status(200).json({ message: "Update Membership Success" });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
 
