@@ -25,21 +25,8 @@ userRoute.get(
 
 userRoute.get(
   "/user/download/:id/:id_user",
-  [authJwt.verifyToken, authJwt.isUser, authJwt.isNotMembership],
-  checkLimit,
+  [authJwt.verifyToken, authJwt.isUser, checkLimit],
   userController.downloadFile
-);
-
-userRoute.post(
-  "/user/update-data/:id",
-  [authJwt.verifyToken, authJwt.isUser],
-  userController.updateUserMail
-);
-
-userRoute.post(
-  "/user/update-password/:id",
-  [authJwt.verifyToken, authJwt.isUser],
-  userController.updatePassword
 );
 
 userRoute.get(
