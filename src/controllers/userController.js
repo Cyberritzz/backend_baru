@@ -104,7 +104,7 @@ const userController = {
         }
       );
 
-      if (user.is_membership === "free") {
+      if (user.is_membership === modelConstanta.isMembership.free) {
         await UserCol.findOneAndUpdate(
           { _id: userId },
           {
