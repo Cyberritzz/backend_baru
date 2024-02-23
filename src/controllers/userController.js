@@ -6,6 +6,8 @@ import otpGenerator from "../utility/otpGenerator.js";
 import ProductCol from "../model/productCol.js";
 import modelConstanta from "../model/modelConstanta.js";
 import ResponseErr from "../responseError/responseError.js";
+import isObjectID from "../utility/mongo.js";
+import UsersValidation from "../validation/user.js";
 
 const userController = {
   getProduct: async (req, res) => {
@@ -120,47 +122,62 @@ const userController = {
       next(error);
     }
   },
-  updateUserMail: async (req, res) => {
+  updateUserMail: async (req, res, next) => {
     try {
       const id = req.params.id;
-      const { fullname, email, contact } = req.body;
+      if (!isObjectID(id)) {
+        throw new ResponseErr(400, "ID Invalid");
+      }
+
+      const val = await UsersValidation.updateEmail(req.body);
 
       const result = await UserCol.updateOne(
         { _id: id },
         {
           $set: {
-            fullname,
-            email,
-            contact,
+            fullname: val.fullname,
+            email: val.email,
+            contact: val.contact,
           },
         }
       );
-      console.log(result);
-      if (result.modifiedCount === 0) {
-        return res.status(401).send({ message: "Update Failed" });
+
+      if (result.matchedCount === 0) {
+        throw new ResponseErr(404, "Update Not Found");
       }
 
-      res.status(200).send({ message: "Update Success", result });
+      res.status(200).send({ message: "Update Email Success", result });
     } catch (err) {
-      res.status(500).send({ message: err.message });
+      next(err);
     }
   },
-  updatePassword: async (req, res) => {
+  updatePassword: async (req, res, next) => {
     try {
       const id = req.params.id;
-      const { oldPassword, newPassword } = req.body;
 
-      const user = await UserCol.findOne({ _id: id });
-
-      const passwordMatch = await bcrypt.compare(oldPassword, user.password);
-
-      if (!passwordMatch) {
-        return res.status(401).json({ message: "Incorrect password" });
+      if (!isObjectID(id)) {
+        throw new ResponseErr(400, "ID Invalid");
       }
 
-      const newHashedPassword = bcrypt.hashSync(newPassword, 10);
+      const val = await UsersValidation.updatePassword(req.body);
+      const user = await UserCol.findOne({ _id: id });
 
-      const updateData = await UserCol.updateOne(
+      if (!user) {
+        throw new ResponseErr(404, "Update Password Error");
+      }
+
+      const passwordMatch = await bcrypt.compare(
+        val.oldPassword,
+        user.password
+      );
+
+      if (!passwordMatch) {
+        throw new ResponseErr(400, "Incorrect Password");
+      }
+
+      const newHashedPassword = await bcrypt.hash(val.newPassword, 10);
+
+      await UserCol.updateOne(
         { _id: id },
         {
           $set: {
@@ -171,12 +188,16 @@ const userController = {
 
       res.status(200).send({ message: "Update Success" });
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
-  getHistory: async (req, res) => {
+  getHistory: async (req, res, next) => {
     try {
       const id = req.params.id;
+
+      if (!isObjectID(id)) {
+        throw new ResponseErr(400, "ID Invalid");
+      }
       const result = await UserCol.findOne(
         { _id: id },
         {
@@ -185,9 +206,13 @@ const userController = {
         }
       );
 
+      if (!result) {
+        throw new ResponseErr(404, "Not Found");
+      }
+
       res.status(200).json(result);
     } catch (error) {
-      res.status(500).send({ message: error.message });
+      next(error);
     }
   },
 
