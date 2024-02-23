@@ -54,6 +54,7 @@ beforeAll(async function () {
 afterAll(async function () {
   await UserCol.deleteOne({ fullname: dataRegister.fullname });
   await UserCol.deleteOne({ fullname: dataRegister2.fullname });
+  await AdminCol.deleteOne({ username: dataRegisterAdmin.username });
   await mongoose.connection.close();
 });
 
@@ -641,5 +642,190 @@ describe("Download file user level2 lifetime", () => {
     await ProductCol.deleteOne({ name_product: dataTemplate.name_product });
     await UserCol.deleteOne({ _id: idUser });
     await AdminCol.deleteOne({ username: dataRegisterAdmin.username });
+  });
+});
+
+describe("Update user email", () => {
+  let userId = "";
+  beforeAll(async function () {
+    const user = await UserCol.findOne({ fullname: dataRegister.fullname });
+    userId = user._id.toString();
+  });
+
+  it("should success", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-data/${userId}`)
+      .send({
+        fullname: dataRegister.fullname,
+        email: "hasankuy123@gmail.com",
+        contact: dataRegister.contact,
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("Update Email Success");
+  });
+
+  it("should error object id invalid", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-data/832983298`)
+      .send({
+        fullname: dataRegister.fullname,
+        email: "hasankuy123@gmail.com",
+        contact: dataRegister.contact,
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["ID Invalid"]);
+  });
+
+  it("should error not found", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-data/6582f533fdff4e7781c1892e`)
+      .send({
+        fullname: dataRegister.fullname,
+        email: "hasankuy123@gmail.com",
+        contact: dataRegister.contact,
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.errors).toEqual(["Update Not Found"]);
+  });
+
+  it("should error required", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-data/${userId}`)
+      .send({
+        fullname: " ",
+        email: " ",
+        contact: " ",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual([
+      '"fullname" is not allowed to be empty',
+      ' "email" is not allowed to be empty',
+      ' "contact" is not allowed to be empty',
+    ]);
+  });
+});
+
+describe("Update Password", () => {
+  let userId = "";
+  beforeAll(async function () {
+    const user = await UserCol.findOne({ fullname: dataRegister.fullname });
+    userId = user._id.toString();
+  });
+
+  it("should success", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-password/${userId}`)
+      .send({
+        oldPassword: dataRegister.password,
+        newPassword: "1234",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    const resLogin = await supertest(app).post("/login").send({
+      email: dataRegister.email,
+      password: dataRegister.password,
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.message).toBe("Update Success");
+    expect(resLogin.statusCode).toBe(400);
+    expect(resLogin.body.errors).toEqual(["Check your email or password"]);
+  });
+
+  it("should error object id invalid", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-password/099039`)
+      .send({
+        oldPassword: dataRegister.password,
+        newPassword: "1234",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["ID Invalid"]);
+  });
+
+  it("should error not found", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-password/6582f533fdff4e7781c1892e`)
+      .send({
+        oldPassword: dataRegister.password,
+        newPassword: "1234",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.errors).toEqual(["Update Password Error"]);
+  });
+
+  it("should error required", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-password/${userId}`)
+      .send({
+        oldPassword: " ",
+        newPassword: " ",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual([
+      '"oldPassword" is not allowed to be empty',
+      ' "newPassword" is not allowed to be empty',
+    ]);
+  });
+
+  it("should error old password not match", async () => {
+    const res = await supertest(app)
+      .put(`/user/update-password/${userId}`)
+      .send({
+        oldPassword: "12345",
+        newPassword: "12",
+      })
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["Incorrect Password"]);
+  });
+});
+
+describe("Get history", () => {
+  let userId = "";
+  beforeAll(async function () {
+    const user = await UserCol.findOne({ fullname: dataRegister.fullname });
+    userId = user._id.toString();
+  });
+
+  it("should success", async () => {
+    const res = await supertest(app)
+      .get(`/user/history/${userId}`)
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it("should error object id invalid", async () => {
+    const res = await supertest(app)
+      .get(`/user/history/8989923`)
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.errors).toEqual(["ID Invalid"]);
+  });
+
+  it("should error object id invalid", async () => {
+    const res = await supertest(app)
+      .get(`/user/history/6582f533fdff4e7781c1892e`)
+      .set("Cookie", [`token=${token}`]);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.body.errors).toEqual(["Not Found"]);
   });
 });

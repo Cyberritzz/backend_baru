@@ -1,5 +1,5 @@
 import Joi from "joi";
-import modelConstanta from "../model/modelConstanta";
+import modelConstanta from "../model/modelConstanta.js";
 
 class ProductSchema {
   static get schema() {

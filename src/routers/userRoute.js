@@ -29,18 +29,6 @@ userRoute.get(
   userController.downloadFile
 );
 
-userRoute.post(
-  "/user/update-data/:id",
-  [authJwt.verifyToken, authJwt.isUser],
-  userController.updateUserMail
-);
-
-userRoute.post(
-  "/user/update-password/:id",
-  [authJwt.verifyToken, authJwt.isUser],
-  userController.updatePassword
-);
-
 userRoute.get(
   "/user/history/:id",
   [authJwt.verifyToken, authJwt.isUser],

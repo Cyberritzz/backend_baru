@@ -4,11 +4,7 @@ import express from "express";
 
 const adminRoute = express.Router();
 
-adminRoute.get(
-  "/admin/dashboard",
-  [authJwt.verifyToken, authJwt.isAdmin],
-  adminController.adminDashboard
-);
+adminRoute.get("/admin/dashboard", adminController.adminDashboard);
 
 adminRoute.get(
   "/admin/dashboard/product",
@@ -79,6 +75,5 @@ adminRoute.delete(
   [authJwt.verifyToken, authJwt.isAdmin],
   adminController.deleteRawFile
 );
-
 
 export default adminRoute;
