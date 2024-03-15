@@ -11,7 +11,6 @@ import authRoute from "./routers/authRoute.js";
 import userRoute from "./routers/userRoute.js";
 
 const app = express();
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
