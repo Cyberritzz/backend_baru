@@ -8,6 +8,7 @@ import ResponseErr from "../responseError/responseError.js";
 import UsersValidation from "../validation/user.js";
 import verifyToken from "../utility/jwt.js";
 import isObjectID from "../utility/mongo.js";
+import nodemailer from "nodemailer";
 
 const authController = {
   register: async (req, res, next) => {
@@ -161,8 +162,19 @@ const authController = {
       });
 
       const url = `${process.env.SECRET_CLIENT_HOST}/reset-password/${token}`;
-      const sendEmail = new Email({
-        from: '"Fred Foo 👻"', // sender address
+
+      const sender = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SECRET_EMAIL_SENDER,
+          pass: process.env.SECRET_EMAIL_AUTH,
+        },
+      });
+
+      const info = await sender.sendMail({
+        from: '"UI Stellar"', // sender address
         to: val.email, // list of receivers
         subject: "Password reset", // Subject line
         html: `
@@ -172,7 +184,6 @@ const authController = {
         
         `, // html body
       });
-      const info = await sendEmail.send();
 
       res.status(200).json({
         statusMessage: info.response,
